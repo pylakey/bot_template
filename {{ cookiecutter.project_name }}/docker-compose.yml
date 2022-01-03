@@ -1,0 +1,23 @@
+version: "3.9"
+
+services:
+  bot:
+    build:
+      context: .
+    volumes:
+      - ".env:/app/.env:ro"
+
+  postgres:
+    image: postgres:14.1
+    volumes:
+      - "pg_data:/var/lib/postgresql/data"
+    environment:
+      PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?:Please configure POSTGRES_PASSWORD in the .env file}
+
+  redis:
+    image: redis:latest
+
+volumes:
+  app_data:
+  pg_data:
