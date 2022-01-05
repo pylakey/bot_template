@@ -34,7 +34,6 @@ class Pagination:
             self,
             command: str,
             query: peewee.Query,
-            *,
             item_serializer: ItemSerializer = to_string,
             item_keyboard_maker: ItemMarkupMaker = None,
             page: Union[int, str] = 1,
