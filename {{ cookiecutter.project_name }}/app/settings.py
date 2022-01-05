@@ -1,3 +1,5 @@
+from pathlib import Path
+
 from pydantic import BaseSettings
 
 
@@ -16,13 +18,24 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
 
     # Files settings
-    DATA_DIR: str = ".data"
-    SESSIONS_DIR: str = ".data/sessions"
+    DATA_DIR: Path = ".data"
 
     # noinspection PyPep8Naming
     @property
     def BOT_ID(self) -> int:
         return int(self.BOT_TOKEN.split(":")[0])
+
+    # noinspection PyPep8Naming
+    @property
+    def SESSIONS_DIR(self) -> Path:
+        data_dir_path = Path(self.DATA_DIR)
+        return data_dir_path / "sessions"
+
+    # noinspection PyPep8Naming
+    @property
+    def FILES_DIR(self) -> Path:
+        data_dir_path = Path(self.DATA_DIR)
+        return data_dir_path / "files"
 
 
 settings = Settings()

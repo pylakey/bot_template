@@ -5,6 +5,7 @@ services:
     build:
       context: .
     volumes:
+      - "app_data:${DATA_DIR:-/app/.data}"
       - ".env:/app/.env:ro"
 
   postgres:

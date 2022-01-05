@@ -44,6 +44,7 @@ async def wait_db_connection():
 def create_missing_dirs():
     os.makedirs(settings.DATA_DIR, exist_ok=True)
     os.makedirs(settings.SESSIONS_DIR, exist_ok=True)
+    os.makedirs(settings.FILES_DIR, exist_ok=True)
 
 
 async def run_migrations():
