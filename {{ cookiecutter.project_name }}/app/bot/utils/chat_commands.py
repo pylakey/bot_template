@@ -109,8 +109,3 @@ class PrivateCommands(BaseCommandsSet):
     # Admin
     PROMOTE_SELF = ChatCommand('promoteself', description='Promote self to be an admin with secret code', hidden=True)
     PROMOTE = ChatCommand('promote', description='Promote user to be an admin', admin=True)
-
-    # Test
-    TEST_CLEAR_STATE = ChatCommand('testclearstate', hidden=True)
-    TEST_GET_STATE = ChatCommand('testgetstate', hidden=True)
-    TEST_SET_STATE = ChatCommand('testsetstate', hidden=True)
