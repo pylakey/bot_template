@@ -10,7 +10,7 @@ from pyrogram.types import BotCommand
 from app.bot.utils.custom_filters import CustomFilters
 
 
-class _BaseCommand:
+class BaseCommand:
     def __init__(self, command: str, *, description: str = "Undocumented", admin: bool = False, hidden: bool = False):
         self.command = command
         self.admin = admin
@@ -56,7 +56,7 @@ class _BaseCommand:
         return pyrogram.Client.on_message(_filter, group=group)
 
 
-class ChatCommand(_BaseCommand):
+class ChatCommand(BaseCommand):
     prefix: Union[str, List[str]] = "/"
     private: bool = True
     description: str = "-"
