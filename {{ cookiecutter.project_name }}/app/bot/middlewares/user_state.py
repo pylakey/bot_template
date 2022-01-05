@@ -50,12 +50,13 @@ class UserState(pydantic.BaseModel):
 
 async def user_state_middleware(_, update: Union[Message, CallbackQuery], call_next: CallNextMiddlewareCallable):
     if isinstance(update, (Message, CallbackQuery)):
+        message = update if isinstance(update, Message) else update.message
         redis = await UserState.get_redis()
-        user_state_data = await redis.get(f"{update.chat.id}_{update.from_user.id}")
+        user_state_data = await redis.get(f"{message.chat.id}_{update.from_user.id}")
         user_state_data = json.loads(user_state_data) if bool(user_state_data) else {}
 
         user_state = UserState(
-            chat_id=update.chat.id,
+            chat_id=message.chat.id,
             user_id=update.from_user.id,
             name=user_state_data.get('name'),
             data=user_state_data.get('data'),

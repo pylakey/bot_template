@@ -1,5 +1,7 @@
 {
   "project_name": "app",
   "author_name": "Pylakey",
-  "author_email": "pylakey@protonmail.com"
+  "author_email": "pylakey@protonmail.com",
+  "description": "",
+  "version": "0.1.0"
 }
