@@ -11,11 +11,16 @@ class Settings(BaseSettings):
     BOT_API_HASH: str
     BOT_TOKEN: str
 
+    # Postgres
     POSTGRES_HOST: str = 'postgres'
     POSTGRES_PORT: int = 5432
     POSTGRES_DB: str = 'postgres'
     POSTGRES_USER: str = 'postgres'
     POSTGRES_PASSWORD: str
+
+    # Redis
+    REDIS_HOST: str = "redis"
+    REDIS_PORT: int = 6379
 
     # Files settings
     DATA_DIR: Path = ".data"
