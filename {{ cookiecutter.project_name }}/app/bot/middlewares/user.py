@@ -16,12 +16,7 @@ logger = logging.getLogger('user_middleware')
 async def user_middleware(_, update: UpdateFromUser, call_next: CallNextMiddlewareCallable):
     if isinstance(update, (Message, CallbackQuery, InlineQuery)):
         try:
-            user = await crud.user.create_or_update(
-                id=update.from_user.id,
-                first_name=update.from_user.first_name,
-                last_name=update.from_user.last_name,
-                username=update.from_user.username,
-            )
+            user = await crud.user.create_or_update_from_pyrogram_user(update.from_user)
         except Exception as _e:
             logger.error(
                 f'Unable to create TG user. Stop from using BOT {_e.__class__.__qualname__}. {_e}',

@@ -7,10 +7,10 @@ from peewee_async import (
 from app.settings import settings
 
 database = PooledPostgresqlDatabase(
-    "postgres",
-    host="postgres",
-    port=5432,
-    user="postgres",
+    settings.POSTGRES_DB,
+    host=settings.POSTGRES_HOST,
+    port=settings.POSTGRES_PORT,
+    user=settings.POSTGRES_USER,
     password=settings.POSTGRES_PASSWORD,
     autoconnect=True
 )

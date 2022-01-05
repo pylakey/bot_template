@@ -8,6 +8,11 @@ class Settings(BaseSettings):
     BOT_API_ID: int
     BOT_API_HASH: str
     BOT_TOKEN: str
+
+    POSTGRES_HOST: str = 'postgres'
+    POSTGRES_PORT: int = 5432
+    POSTGRES_DB: str = 'postgres'
+    POSTGRES_USER: str = 'postgres'
     POSTGRES_PASSWORD: str
 
     # Files settings

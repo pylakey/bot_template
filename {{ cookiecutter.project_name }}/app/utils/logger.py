@@ -11,8 +11,8 @@ def configure_logger(level=logging.INFO):
         datefmt='%Y-%m-%d %H:%M:%S',
     )
     #
-    # logging.getLogger('pyrogram.session.session').setLevel(logging.WARNING)
-    # logging.getLogger('pyrogram.connection.connection').setLevel(logging.WARNING)
+    logging.getLogger('pyrogram.session.session').setLevel(logging.WARNING)
+    logging.getLogger('pyrogram.connection.connection').setLevel(logging.WARNING)
     # logging.getLogger('aiohttp.access').setLevel(logging.WARNING)
     # logging.getLogger('pyrogram.client.client').setLevel(logging.WARNING)
     # logging.getLogger('pyrogram.client.ext.syncer').setLevel(logging.WARNING)

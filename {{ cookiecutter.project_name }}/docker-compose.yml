@@ -13,6 +13,8 @@ services:
       - "pg_data:/var/lib/postgresql/data"
     environment:
       PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD?:Please configure POSTGRES_PASSWORD in the .env file}
 
   redis:

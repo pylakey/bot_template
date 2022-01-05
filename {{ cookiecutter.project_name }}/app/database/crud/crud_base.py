@@ -10,7 +10,6 @@ from typing import (
 
 import peewee
 import pydantic
-import pydash
 
 from app.database.database import objects
 from app.database.model.base_model import BaseModel
@@ -27,14 +26,15 @@ class CRUDBase(Generic[Model]):
 
     @cached_property
     def primary_key(self) -> Optional[peewee.Field]:
-        return pydash.get(self.model, '._meta.primary_key', {})
+        return self.model._meta.primary_key
 
     @cached_property
     def primary_key_name(self) -> Optional[str]:
-        return self.primary_key.__dict__.get('safe_name')
+        return self.primary_key.safe_name
 
     async def get(self, primary_key: PrimaryKey) -> Optional[Model]:
-        return await objects.get_or_none(self.model, self.primary_key == primary_key)
+        query = self.model.select().where(self.primary_key == primary_key)
+        return await objects.first(query)
 
     async def get_multi(
             self,
@@ -89,10 +89,13 @@ class CRUDBase(Generic[Model]):
 
     async def create_or_update(self, *, data_object: Union[dict, pydantic.BaseModel] = None, **kwargs) -> Model:
         data = {**jsonable_encoder(data_object or {}), **jsonable_encoder(kwargs)}
+        obj_id = data.get(self.primary_key_name)
 
-        if self.primary_key_name in data:
-            obj = await self.get(data[self.primary_key_name])
-            return await self.update(obj, update_object=data)
+        if bool(obj_id):
+            obj = await self.get(obj_id)
+
+            if bool(obj):
+                return await self.update(obj, update_object=data)
 
         return await self.create(create_object=data)
 

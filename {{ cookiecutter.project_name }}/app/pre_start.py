@@ -1,8 +1,10 @@
 import asyncio
 import logging
 import os
+from pathlib import Path
 
 import peewee
+from peewee_migrate import Router
 from tenacity import (
     after_log,
     before_log,
@@ -44,9 +46,16 @@ def create_missing_dirs():
     os.makedirs(settings.SESSIONS_DIR, exist_ok=True)
 
 
+async def run_migrations():
+    migrations_path = str(Path(__file__).parent.relative_to(os.getcwd()) / "database" / "migrations")
+    router = Router(database=database, migrate_dir=migrations_path)
+    router.run()
+
+
 async def main():
     create_missing_dirs()
-    # await wait_db_connection()
+    await wait_db_connection()
+    await run_migrations()
 
 
 if __name__ == '__main__':

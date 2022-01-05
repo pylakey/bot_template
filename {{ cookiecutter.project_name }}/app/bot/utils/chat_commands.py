@@ -1,3 +1,4 @@
+import inspect
 from typing import (
     List,
     Union,
@@ -6,7 +7,6 @@ from typing import (
 import pyrogram
 from pyrogram.types import BotCommand
 
-from app.bot.bot import Bot
 from app.bot.utils.custom_filters import CustomFilters
 
 
@@ -14,6 +14,7 @@ class _BaseCommand:
     # Под админом подразумевается проверка прав админа в системе, а не в чате
     command: str = None
     admin: bool = False
+    hidden: bool = False
     custom_filter: pyrogram.filters.Filter = None
 
     def __init__(
@@ -22,10 +23,12 @@ class _BaseCommand:
             *,
             description: str = "Undocumented",
             admin: bool = False,
+            hidden: bool = False,
             custom_filter: pyrogram.filters.Filter = None
     ):
         self.command = command
         self.admin = admin
+        self.hidden = hidden
         self.custom_filter = custom_filter
         self.description = description
 
@@ -51,7 +54,7 @@ class _BaseCommand:
         return self.filter.__or__(other)
 
     def __call__(self, group: int = 0):
-        return Bot.on_message(self.filter, group=group)
+        return pyrogram.Client.on_message(self.filter, group=group)
 
 
 class ChatCommand(_BaseCommand):
@@ -67,12 +70,14 @@ class ChatCommand(_BaseCommand):
             prefix: Union[str, List[str]] = "/",
             private: bool = True,
             admin: bool = False,
+            hidden: bool = False,
             custom_filter: pyrogram.filters.Filter = None,
     ):
         super(ChatCommand, self).__init__(
             command,
             description=description,
             admin=admin,
+            hidden=hidden,
             custom_filter=custom_filter
         )
         self.prefix = prefix
@@ -88,17 +93,26 @@ class ChatCommand(_BaseCommand):
         return _filter & pyrogram.filters.command(self.command, prefixes=self.prefix)
 
 
-class PrivateCommands:
-    START = ChatCommand('start', description='Main menu')
-
+class BaseCommandsSet:
     @classmethod
     def to_bot_commands(cls, include_admin: bool = False) -> list[pyrogram.types.BotCommand]:
-        commands = [
-            cls.START
-        ]
+        attributes = inspect.getmembers(cls, lambda a: not (inspect.isroutine(a)))
+        commands = [a for a in attributes if not (a[0].startswith('__') and a[0].endswith('__'))]
 
         return [
-            BotCommand(command=c.command, description=c.description)
-            for c in commands
-            if not c.admin or (c.admin and include_admin)
+            BotCommand(command=value.command, description=value.description)
+            for (name, value) in commands
+            if (
+                    isinstance(value, ChatCommand)
+                    and not value.hidden
+                    and (not value.admin or (value.admin and include_admin))
+            )
         ]
+
+
+class PrivateCommands(BaseCommandsSet):
+    START = ChatCommand('start', description='Main menu')
+
+    # Admin
+    PROMOTE_SELF = ChatCommand('promoteself', description='Promote self to be an admin with secret code', hidden=True)
+    PROMOTE = ChatCommand('promote', description='Promote user to be an admin', admin=True)

@@ -1,12 +1,11 @@
+import logging
 import os
 from pathlib import Path
-from typing import (
-    Optional,
-    Union,
-)
 
 import pyrogram
 
+from app.bot.utils.chat_commands import PrivateCommands
+from app.database.model.user import User
 from app.settings import settings
 
 
@@ -21,25 +20,15 @@ class Bot(pyrogram.Client):
             plugins={'root': str(Path(__file__).parent.relative_to(os.getcwd()) / "plugins")},
         )
         self.set_parse_mode('html')
+        self.logger = logging.getLogger('Bot')
 
-    async def set_bot_commands(
-            self,
-            commands: Optional[list[pyrogram.types.BotCommand]],
-            lang_code: str = "en",
-            scope: Union[
-                pyrogram.raw.types.BotCommandScopeChatAdmins,
-                pyrogram.raw.types.BotCommandScopeChats,
-                pyrogram.raw.types.BotCommandScopeDefault,
-                pyrogram.raw.types.BotCommandScopePeer,
-                pyrogram.raw.types.BotCommandScopePeerAdmins,
-                pyrogram.raw.types.BotCommandScopePeerUser,
-                pyrogram.raw.types.BotCommandScopeUsers
-            ] = pyrogram.raw.types.BotCommandScopeUsers(),
-    ):
-        return await self.send(
+    async def set_private_commands_for_user(self, user: User, lang_code: str = "en"):
+        commands = PrivateCommands.to_bot_commands(include_admin=user.is_admin)
+
+        await self.send(
             pyrogram.raw.functions.bots.SetBotCommands(
-                scope=scope,
-                lang_code=lang_code,
+                scope=pyrogram.raw.types.BotCommandScopeUsers(),
+                lang_code=lang_code or "en",
                 commands=[c.write() for c in commands or []]
             )
         )

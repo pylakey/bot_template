@@ -14,6 +14,7 @@ pydash = "^5.1.0"
 pyrogram = { git = "https://github.com/pylakey/pyrogram" }
 tenacity = "^8.0.1"
 uvloop = "^0.16.0"
+peewee-migrate = "^1.4.7"
 
 [tool.poetry.dev-dependencies]
 

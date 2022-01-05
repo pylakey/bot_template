@@ -8,6 +8,7 @@ class User(BaseModel):
     first_name = peewee.CharField(max_length=64)
     last_name = peewee.CharField(null=True, max_length=64)
     username = peewee.CharField(null=True, max_length=32, index=True)
+    language_code = peewee.CharField(null=True, max_length=4)
     is_admin = peewee.BooleanField(default=False)
 
     @property
