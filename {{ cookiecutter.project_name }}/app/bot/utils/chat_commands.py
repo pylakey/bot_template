@@ -105,6 +105,7 @@ class BaseCommandsSet:
 class PrivateCommands(BaseCommandsSet):
     START = ChatCommand('start', description='Main menu')
     CANCEL = ChatCommand('cancel', description='Cancel current operation')
+    TEST_DIALOG = ChatCommand('testdialog', description='Command to test dialog with bot')
 
     # Admin
     PROMOTE_SELF = ChatCommand('promoteself', description='Promote self to be an admin with secret code', hidden=True)
