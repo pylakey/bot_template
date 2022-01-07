@@ -1,4 +1,3 @@
-import inspect
 from typing import (
     List,
     Union,
@@ -87,25 +86,38 @@ class ChatCommand(BaseCommand):
 
 class BaseCommandsSet:
     @classmethod
+    def get_all_commands(cls) -> list[ChatCommand]:
+        return [
+            v
+            for k, v in cls.__dict__.items()
+            if not k.startswith('_') and isinstance(v, ChatCommand)
+        ]
+
+    @classmethod
     def to_bot_commands(cls, include_admin: bool = False) -> list[pyrogram.types.BotCommand]:
-        attributes = inspect.getmembers(cls, lambda a: not (inspect.isroutine(a)))
-        commands = [a for a in attributes if not (a[0].startswith('__') and a[0].endswith('__'))]
+        commands = cls.get_all_commands()
 
         return [
-            BotCommand(command=value.command, description=value.description)
-            for (name, value) in commands
-            if (
-                    isinstance(value, ChatCommand)
-                    and not value.hidden
-                    and (not value.admin or (value.admin and include_admin))
-            )
+            BotCommand(command=c.command, description=c.description)
+            for c in commands
+            if not c.hidden and (not c.admin or (c.admin and include_admin))
         ]
+
+    @classmethod
+    def stringify(cls, include_admin: bool = False) -> str:
+        commands = cls.get_all_commands()
+
+        return "\n".join(
+            f"{c.prefix}{c.command} - {c.description}"
+            for c in commands
+            if not c.hidden and (not c.admin or (c.admin and include_admin))
+        )
 
 
 class PrivateCommands(BaseCommandsSet):
     START = ChatCommand('start', description='Main menu')
-    CANCEL = ChatCommand('cancel', description='Cancel current operation')
     TEST_DIALOG = ChatCommand('testdialog', description='Command to test dialog with bot')
+    CANCEL = ChatCommand('cancel', description='Cancel current operation')
 
     # Admin
     PROMOTE_SELF = ChatCommand('promoteself', description='Promote self to be an admin with secret code', hidden=True)

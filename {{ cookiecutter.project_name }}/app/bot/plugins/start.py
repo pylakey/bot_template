@@ -10,7 +10,12 @@ from app.bot.utils.chat_commands import PrivateCommands
 @PrivateCommands.START()
 async def start(bot: Bot, message: pyrogram.types.Message):
     reply_markup = pyrogram.types.InlineKeyboardMarkup([[CallbackActions.HELLO.button("Hello!")]])
-    await message.reply(f'Hello, {message.from_user.mention}!', reply_markup=reply_markup)
+    await message.reply(
+        f'Hello, {message.from_user.mention}!\n\n'
+        f'<b>Available commands:</b>\n\n'
+        f'{PrivateCommands.stringify(include_admin=message.bucket.user.is_admin)}',
+        reply_markup=reply_markup
+    )
 
     asyncio.create_task(
         bot.set_private_commands_for_user(

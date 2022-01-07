@@ -1,5 +1,6 @@
 import abc
 import uuid
+from decimal import Decimal
 from functools import (
     cached_property,
 )
@@ -20,17 +21,36 @@ from app.bot.utils.custom_filters import CustomFilters
 ValueCast = Callable[[str], Any]
 
 
-def cast_bool(value: Any) -> bool:
-    if isinstance(value, bool):
-        return value
-    if isinstance(value, int):
-        return bool(value)
-    if isinstance(value, str) and value.lower() in ["true", "1"]:
-        return True
-    if isinstance(value, str) and value.lower() in ["false", "0"]:
-        return False
+class Validators:
+    @staticmethod
+    def bool(value: Any) -> bool:
+        try:
+            if isinstance(value, bool):
+                return value
+            if isinstance(value, int):
+                return bool(value)
+            if isinstance(value, str) and value.lower() in ["true", "1"]:
+                return True
+            if isinstance(value, str) and value.lower() in ["false", "0"]:
+                return False
 
-    return False
+            return bool(value)
+        except Exception as e:
+            raise ValueError(f"Incorrect value {value}")
+
+    @staticmethod
+    def decimal(value: Any) -> Decimal:
+        try:
+            if isinstance(value, Decimal):
+                return value
+            if isinstance(value, int):
+                return Decimal(value)
+            if isinstance(value, str):
+                return Decimal(value.replace(',', '.'))
+
+            return Decimal(value)
+        except Exception as e:
+            raise ValueError(f"Incorrect value {value}")
 
 
 class DialogAction:
@@ -102,7 +122,7 @@ class DialogActionPrompt(DialogActionChoices):
                 DialogChoice(name="No", value=0),
                 DialogChoice(name="Yes", value=1),
             ],
-            cast=cast_bool
+            cast=Validators.bool
         )
 
 
