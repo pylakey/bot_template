@@ -12,7 +12,11 @@ from app.utils.logger import configure_logger
 
 async def main():
     # uvloop workaround
+    from app import cron
     from app.bot.bot import Bot
+
+    # Start all cron tasks
+    cron.initialize()
 
     bot = Bot()
     bot.add_middleware(log_middleware)

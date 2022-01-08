@@ -6,6 +6,7 @@ authors = ["{{ cookiecutter.author_name }} <{{ cookiecutter.author_email }}>"]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+aiocron = "^1.8"
 aiopg = "^1.3.3"
 aioredis = "^2.0.1"
 async_lru = "^1.0.2"
