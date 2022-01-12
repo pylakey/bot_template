@@ -13,12 +13,10 @@ from app.settings import settings
 from app.utils import json
 
 logger = logging.getLogger('user_state_middleware')
+redis = aioredis.from_url(f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}/{settings.BOT_ID}_user_states")
 
 
 class UserState(pydantic.BaseModel):
-    # Classmethod
-    _redis: aioredis.Redis = None
-
     chat_id: int
     user_id: int
     name: str = None
@@ -28,18 +26,10 @@ class UserState(pydantic.BaseModel):
         return await self.set(name=None, data=None)
 
     async def set(self, name: str = None, data: dict = None) -> 'UserState':
-        redis = await UserState.get_redis()
         self.name = name
         self.data = data
         await redis.set(f"{self.chat_id}_{self.user_id}", self.json())
         return self
-
-    @classmethod
-    async def get_redis(cls) -> aioredis.Redis:
-        if cls._redis is None:
-            cls._redis = await aioredis.from_url(f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}")
-
-        return cls._redis
 
     class Config:
         json_dumps = json.dumps
@@ -51,9 +41,8 @@ class UserState(pydantic.BaseModel):
 async def user_state_middleware(_, update: Union[Message, CallbackQuery], call_next: CallNextMiddlewareCallable):
     if isinstance(update, (Message, CallbackQuery)):
         message = update if isinstance(update, Message) else update.message
-        redis = await UserState.get_redis()
         user_state_data = await redis.get(f"{message.chat.id}_{update.from_user.id}")
-        user_state_data = json.loads(user_state_data) if bool(user_state_data) else {}
+        user_state_data = json.loads(user_state_data.decode('utf-8')) if bool(user_state_data) else {}
 
         user_state = UserState(
             chat_id=message.chat.id,
