@@ -15,7 +15,7 @@ class CRUDUser(CRUDBase[User]):
         )
 
     async def set_user_admin(self, user: User) -> User:
-        self.logger.warning(f"User {user.id} promoted to be an admin")
+        self.logger.warning(f"User {user.id} @{user.username} promoted to be an admin")
         return await self.update(user, is_admin=True)
 
 
