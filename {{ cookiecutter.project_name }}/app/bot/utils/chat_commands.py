@@ -14,6 +14,14 @@ from pyrogram.types import BotCommand
 from app.bot.utils.custom_filters import CustomFilters
 
 
+class CommandArgs(pydantic.BaseModel):
+    class Config:
+        allow_population_by_field_name = True
+        smart_union = True
+        anystr_strip_whitespace = True
+        use_enum_values = True
+
+
 class ChatCommand:
     def __init__(
             self,
@@ -24,7 +32,7 @@ class ChatCommand:
             admin: bool = False,
             hidden: bool = False,
             private: bool = True,
-            args_model: Union[dict, Type[pydantic.BaseModel]] = None
+            args_model: Union[dict, Type[CommandArgs]] = None
     ):
         self.command = command
         self.admin = admin
