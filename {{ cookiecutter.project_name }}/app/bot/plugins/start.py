@@ -18,7 +18,8 @@ async def start(bot: Bot, message: pyrogram.types.Message):
     )
 
     asyncio.create_task(
-        bot.set_private_commands_for_user(
+        bot.set_commands_for_user(
+            PrivateCommands,
             message.bucket.user,
             lang_code=message.from_user.language_code
         )

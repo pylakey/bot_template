@@ -24,7 +24,7 @@ async def promote(bot: Bot, message: pyrogram.types.Message):
         user = await crud.user.create_or_update_from_pyrogram_user(pyrogram_user)
         await crud.user.set_user_admin(user)
         await message.reply("OK", quote=True)
-        asyncio.create_task(bot.set_private_commands_for_user(user))
+        asyncio.create_task(bot.set_commands_for_user(PrivateCommands, user))
 
     message.stop_propagation()
 
@@ -42,5 +42,5 @@ async def promote_self(bot: Bot, message: pyrogram.types.Message):
 
     user = await crud.user.set_user_admin(message.bucket.user)
     await message.reply("OK", quote=True)
-    asyncio.create_task(bot.set_private_commands_for_user(user))
+    asyncio.create_task(bot.set_commands_for_user(PrivateCommands, user))
     message.stop_propagation()
