@@ -64,11 +64,13 @@ class ChatCommand:
             state: str = '*',
             args_model: Union[dict, Type[pydantic.BaseModel]] = None
     ):
-        self.args_model = (
-            pydantic.create_model('ArgsModel', **args_model)
-            if isinstance(args_model, dict)
-            else args_model
-        )
+        if self.args_model is None:
+            self.args_model = (
+                pydantic.create_model('ArgsModel', **args_model)
+                if isinstance(args_model, dict)
+                else args_model
+            )
+
         _filter = self.filter
 
         if custom_filter is not None:
