@@ -1,8 +1,10 @@
+import asyncio
 import logging
 import os
 from pathlib import Path
 from typing import Type
 
+import pydash
 import pyrogram
 
 from app.bot.utils.chat_commands import (
@@ -56,3 +58,10 @@ class Bot(pyrogram.Client):
                     commands=commands
                 )
             )
+
+    async def broadcast_message(self, message: pyrogram.types.Message, *, chats: list[int] = None):
+        tasks = pydash.chunk([message.copy(chat_id) for chat_id in chats], 30)
+
+        for chunk in tasks:
+            await asyncio.gather(*chunk, return_exceptions=True)
+            await asyncio.sleep(1)

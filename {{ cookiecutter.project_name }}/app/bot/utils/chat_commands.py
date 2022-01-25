@@ -32,6 +32,7 @@ class ChatCommand:
             admin: bool = False,
             hidden: bool = False,
             private: bool = True,
+            reply: bool = False,
             args_model: Union[dict, Type[CommandArgs]] = None
     ):
         self.command = command
@@ -40,6 +41,7 @@ class ChatCommand:
         self.description = description
         self.prefix = prefix
         self.private = private
+        self.reply = reply
         self.args_model = (
             pydantic.create_model('ArgsModel', **args_model)
             if isinstance(args_model, dict)
@@ -61,6 +63,7 @@ class ChatCommand:
             group: int = 0,
             admin: bool = None,
             private: bool = None,
+            reply: bool = None,
             state: str = '*',
             args_model: Union[dict, Type[pydantic.BaseModel]] = None
     ):
@@ -84,6 +87,9 @@ class ChatCommand:
 
         if not self.private and private:
             _filter = pyrogram.filters.private & _filter
+
+        if not self.reply and reply:
+            _filter = pyrogram.filters.reply & _filter
 
         command = self
 
@@ -111,6 +117,9 @@ class ChatCommand:
 
         if self.private:
             _filter = pyrogram.filters.private & _filter
+
+        if self.reply:
+            _filter = pyrogram.filters.reply & _filter
 
         _filter = pyrogram.filters.command(self.command, prefixes=self.prefix) & _filter
 
@@ -258,3 +267,4 @@ class PrivateCommands(BaseCommandsSet):
     # Admin
     PROMOTE_SELF = ChatCommand('promoteself', description='Promote self to be an admin with secret code', hidden=True)
     PROMOTE = ChatCommand('promote', description='Promote user to be an admin', admin=True)
+    ANNOUNCE = ChatCommand('announce', description='Forward replied message to users', admin=True)
