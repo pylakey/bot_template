@@ -78,8 +78,7 @@ class DialogAction(abc.ABC):
 
             raise ValueError('Incorrect value')
 
-    @property
-    def reply_markup(self) -> DialogKeyboard:
+    async def get_reply_markup(self) -> DialogKeyboard:
         return None
 
     @abc.abstractmethod
@@ -97,7 +96,8 @@ class DialogAction(abc.ABC):
         else:
             text = self.text
 
-        await message.reply(text, disable_web_page_preview=True, reply_markup=self.reply_markup)
+        reply_markup = await self.get_reply_markup()
+        await message.reply(text, disable_web_page_preview=True, reply_markup=reply_markup)
 
 
 class DialogMessageAction(DialogAction, abc.ABC):
@@ -111,9 +111,8 @@ class DialogMessageAction(DialogAction, abc.ABC):
 class DialogCallbackQueryAction(DialogAction, abc.ABC):
     supported_updates = [pyrogram.types.CallbackQuery]
 
-    @property
     @abc.abstractmethod
-    def reply_markup(self) -> pyrogram.types.InlineKeyboardMarkup:
+    async def get_reply_markup(self) -> pyrogram.types.InlineKeyboardMarkup:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -135,10 +134,9 @@ class DialogActionReplySelect(DialogActionText):
         self.choices = choices
         self.columns = columns
 
-    @property
-    def reply_markup(self) -> pyrogram.types.ReplyKeyboardMarkup:
+    async def get_reply_markup(self) -> pyrogram.types.ReplyKeyboardMarkup:
         if callable(self.choices):
-            choices = self.choices()
+            choices = await self.choices()
         else:
             choices = self.choices
 
@@ -157,10 +155,9 @@ class DialogActionInlineSelect(DialogCallbackQueryAction):
     async def get_result_from_update(self, update: pyrogram.types.CallbackQuery) -> Any:
         return update.params.get('v')
 
-    @property
-    def reply_markup(self) -> DialogKeyboard:
+    async def get_reply_markup(self) -> DialogKeyboard:
         if callable(self.choices):
-            choices = self.choices()
+            choices = await self.choices()
         else:
             choices = self.choices
 
