@@ -7,6 +7,7 @@ import pyrogram
 
 from app.bot.utils.chat_commands import (
     BaseCommandsSet,
+    PrivateCommands,
 )
 from app.database.model.user import User
 from app.settings import settings
@@ -24,6 +25,10 @@ class Bot(pyrogram.Client):
         )
         self.set_parse_mode('html')
         self.logger = logging.getLogger('Bot')
+
+    async def start(self):
+        await super(Bot, self).start()
+        await self.set_commands_for_everyone(PrivateCommands)
 
     async def set_commands_for_user(self, commands_class: Type[BaseCommandsSet], user: User, lang_code: str = "en"):
         commands = commands_class.to_bot_commands(include_admin=user.is_admin)

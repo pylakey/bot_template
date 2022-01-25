@@ -166,7 +166,7 @@ class ChatCommand:
 
             results.append(field_text)
 
-        return "<b>Parameters:</b>\n" + "\n".join(results)
+        return "<b>Parameters:</b>\n" + "\n".join(results) if len(results) > 0 else ""
 
     async def parse_args(self, command_params: list[str] = None) -> Optional[pydantic.BaseModel]:
         if self.args_model is None:
