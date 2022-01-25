@@ -102,3 +102,6 @@ class CRUDBase(Generic[Model]):
     async def delete(self, obj: Model, *, recursive: bool = False, delete_nullable: bool = False) -> Model:
         await objects.delete(obj, recursive=recursive, delete_nullable=delete_nullable)
         return obj
+
+    async def get_total_count(self) -> int:
+        return await objects.count(self.model.select())
