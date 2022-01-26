@@ -79,7 +79,7 @@ class DialogAction(abc.ABC):
             raise ValueError('Incorrect value')
 
     async def get_reply_markup(self) -> DialogKeyboard:
-        return None
+        return pyrogram.types.ReplyKeyboardRemove(selective=True)
 
     @abc.abstractmethod
     async def get_result_from_update(self, update: DialogSupportedUpdate) -> Any:

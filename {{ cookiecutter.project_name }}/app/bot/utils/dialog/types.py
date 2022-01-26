@@ -16,6 +16,7 @@ DialogSupportedUpdate = Union[pyrogram.types.CallbackQuery, pyrogram.types.Messa
 DialogKeyboard = Optional[Union[
     pyrogram.types.InlineKeyboardMarkup,
     pyrogram.types.ReplyKeyboardMarkup,
+    pyrogram.types.ReplyKeyboardRemove,
 ]]
 StrChoices = Union[list[str], Callable[[...], list[str]]]
 Choices = Union[list['DialogChoice'], Callable[[...], list['DialogChoice']]]
