@@ -35,7 +35,7 @@ class Dialog:
     @cached_property
     def __actions(self) -> dict[str, DialogAction]:
         return {
-            k: v
+            f'{self.__id}:{k}': v
             for k, v in self.__class__.__dict__.items()
             if not (k.startswith('_') or k.startswith('__')) and isinstance(v, DialogAction)
         }
@@ -69,10 +69,6 @@ class Dialog:
 
         return None
 
-    def __get_next_action(self, state_name: str) -> Optional[DialogAction]:
-        next_state_name = self.__get_next_state(state_name)
-        return self.__find_action_by_state(next_state_name)
-
     @staticmethod
     async def __check_dialog_id(f, __, update: Union[pyrogram.types.Message, pyrogram.types.CallbackQuery]):
         if not isinstance(update, (pyrogram.types.Message, pyrogram.types.CallbackQuery)):
@@ -93,9 +89,10 @@ class Dialog:
 
         if state.name is not None:
             current_action = self.__find_action_by_state(state.name)
+            original_action_name = state.name.replace(f'{self.__id}:', '', 1)
 
             try:
-                update_data[state.name] = await current_action.parse_result(update)
+                update_data[original_action_name] = await current_action.parse_result(update)
             except ValueError as e:
                 await message.reply(str(e), quote=True, disable_web_page_preview=True)
                 return message.stop_propagation()
