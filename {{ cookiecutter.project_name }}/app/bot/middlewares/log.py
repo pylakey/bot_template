@@ -1,5 +1,6 @@
 import logging
 
+import pydash
 from pyrogram.middleware import CallNextMiddlewareCallable
 from pyrogram.types import (
     CallbackQuery,
@@ -33,15 +34,19 @@ async def log_middleware(_, update: UpdateFromUser, call_next: CallNextMiddlewar
         logger.info(f"[{update.__class__.__name__}] Unsupported update type")
         return await call_next(_, update)
 
-    pyrogram_user_log = f"ID: {update.from_user.id}"
+    from_user = pydash.get(update, 'from_user')
 
-    if bool(update.from_user.username):
-        pyrogram_user_log += f" (https://t.me/{update.from_user.username})"
+    if bool(from_user):
+        pyrogram_user_log = f"ID: {update.from_user.id}"
 
-    if bool(update.from_user.language_code):
-        pyrogram_user_log += f" Language: {update.from_user.language_code}"
+        if bool(from_user.username):
+            pyrogram_user_log += f" (https://t.me/{update.from_user.username})"
 
-    logs.append(pyrogram_user_log)
+        if bool(from_user.language_code):
+            pyrogram_user_log += f" Language: {update.from_user.language_code}"
+
+        logs.append(pyrogram_user_log)
+
     logger.info(f"[{update.__class__.__name__}] {'. '.join(logs)}")
 
     return await call_next(_, update)
