@@ -17,6 +17,7 @@ from .types import (
     DialogChoice,
     DialogKeyboard,
     DialogSupportedUpdate,
+    DialogText,
     StrChoices,
 )
 
@@ -28,7 +29,7 @@ class DialogAction(abc.ABC):
 
     def __init__(
             self,
-            text: str,
+            text: DialogText,
             result_type: Type[ResultType] = str,
             gt: float = None,
             ge: float = None,
@@ -129,7 +130,7 @@ class DialogActionText(DialogMessageAction):
 
 
 class DialogActionReplySelect(DialogActionText):
-    def __init__(self, text: str, choices: StrChoices, columns: int = 3):
+    def __init__(self, text: DialogText, choices: StrChoices, columns: int = 3):
         super().__init__(text)
         self.choices = choices
         self.columns = columns
@@ -146,7 +147,7 @@ class DialogActionReplySelect(DialogActionText):
 
 
 class DialogActionInlineSelect(DialogCallbackQueryAction):
-    def __init__(self, text: str, choices: Choices, result_type: Type[ResultType] = str, columns: int = 1):
+    def __init__(self, text: DialogText, choices: Choices, result_type: Type[ResultType] = str, columns: int = 1):
         super().__init__(text, result_type=result_type)
         self.action = uuid.uuid4().hex[:7]
         self.choices = choices
@@ -173,7 +174,7 @@ class DialogActionInlineSelect(DialogCallbackQueryAction):
 
 
 class DialogActionBoolPrompt(DialogActionInlineSelect):
-    def __init__(self, text: str):
+    def __init__(self, text: DialogText):
         super().__init__(
             text=text,
             choices=[
