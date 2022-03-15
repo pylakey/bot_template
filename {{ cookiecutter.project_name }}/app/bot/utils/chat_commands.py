@@ -94,7 +94,7 @@ class ChatCommand:
         command = self
 
         def decorator(func: callable):
-            @pyrogram.Client.on_message(_filter)
+            @pyrogram.Client.on_message(_filter, group=group)
             async def decorated(_, message: pyrogram.types.Message):
                 try:
                     message.bucket.args = await command.parse_args(message.command[1:])
