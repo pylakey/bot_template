@@ -96,6 +96,8 @@ class Dialog:
             except ValueError as e:
                 await message.reply(str(e), quote=True, disable_web_page_preview=True)
                 return message.stop_propagation()
+            except TypeError:
+                return message.continue_propagation()
 
         next_action_state_name = self.__get_next_state(state.name)
         updated_state_data = state_data | update_data

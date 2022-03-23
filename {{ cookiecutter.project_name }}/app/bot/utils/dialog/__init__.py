@@ -1,10 +1,11 @@
 from .dialog import Dialog
 from .dialog_actions import (
     DialogAction,
-    DialogActionInlineSelect,
-    DialogActionText,
     DialogActionBoolPrompt,
+    DialogActionInlineSelect,
+    DialogActionList,
     DialogActionReplySelect,
+    DialogActionText,
     DialogCallbackQueryAction,
     DialogMessageAction,
 )

@@ -9,22 +9,21 @@ from typing import (
 import pydantic
 import pyrogram.filters
 
-from app.bot.middlewares.user_state import UserState
 
-DialogText = Union[str, Callable[[UserState], Coroutine[Any, Any, str]]]
+class DialogChoice(pydantic.BaseModel):
+    title: str
+    value: str
+
+
 DialogSupportedUpdate = Union[pyrogram.types.CallbackQuery, pyrogram.types.Message]
+DialogText = Union[str, Callable[[DialogSupportedUpdate], Coroutine[Any, Any, str]]]
+
 DialogKeyboard = Optional[Union[
     pyrogram.types.InlineKeyboardMarkup,
     pyrogram.types.ReplyKeyboardMarkup,
     pyrogram.types.ReplyKeyboardRemove,
 ]]
-StrChoices = Union[list[str], Callable[[...], list[str]]]
-Choices = Union[list['DialogChoice'], Callable[[...], list['DialogChoice']]]
 
-
-class DialogChoice(pydantic.BaseModel):
-    title: str
-    value: Union[bool, int, str]
-
-    class Config:
-        smart_union = True
+# Union[T, Callable[[...], Coroutine[Any, Any, T]]]
+StrChoices = Union[list[str], Callable[[DialogSupportedUpdate], Coroutine[Any, Any, list[str]]]]
+Choices = Union[list[DialogChoice], Callable[[DialogSupportedUpdate], Coroutine[Any, Any, list[DialogChoice]]]]

@@ -79,7 +79,7 @@ class DialogAction(abc.ABC):
 
             raise ValueError('Incorrect value')
 
-    async def get_reply_markup(self) -> DialogKeyboard:
+    async def get_reply_markup(self, update: DialogSupportedUpdate) -> DialogKeyboard:
         return pyrogram.types.ReplyKeyboardRemove(selective=True)
 
     @abc.abstractmethod
@@ -93,11 +93,11 @@ class DialogAction(abc.ABC):
             message = update.message
 
         if callable(self.text):
-            text = await self.text(update.bucket.state)
+            text = await self.text(update)
         else:
             text = self.text
 
-        reply_markup = await self.get_reply_markup()
+        reply_markup = await self.get_reply_markup(update)
         await message.reply(text, disable_web_page_preview=True, reply_markup=reply_markup)
 
 
@@ -113,7 +113,7 @@ class DialogCallbackQueryAction(DialogAction, abc.ABC):
     supported_updates = [pyrogram.types.CallbackQuery]
 
     @abc.abstractmethod
-    async def get_reply_markup(self) -> pyrogram.types.InlineKeyboardMarkup:
+    async def get_reply_markup(self, update: DialogSupportedUpdate) -> pyrogram.types.InlineKeyboardMarkup:
         raise NotImplementedError
 
     @abc.abstractmethod
@@ -135,15 +135,20 @@ class DialogActionReplySelect(DialogActionText):
         self.choices = choices
         self.columns = columns
 
-    async def get_reply_markup(self) -> pyrogram.types.ReplyKeyboardMarkup:
+    async def get_reply_markup(self, update: DialogSupportedUpdate) -> pyrogram.types.ReplyKeyboardMarkup:
         if callable(self.choices):
-            choices = await self.choices()
+            choices = await self.choices(update)
         else:
             choices = self.choices
 
         rows = pydash.chunk(choices, self.columns)
 
         return pyrogram.types.ReplyKeyboardMarkup(rows, resize_keyboard=True, one_time_keyboard=True)
+
+
+class DialogActionList(DialogActionText):
+    async def get_result_from_update(self, update: pyrogram.types.Message) -> Any:
+        return (await super(DialogActionList, self).get_result_from_update(update)).split()
 
 
 class DialogActionInlineSelect(DialogCallbackQueryAction):
@@ -156,11 +161,14 @@ class DialogActionInlineSelect(DialogCallbackQueryAction):
     async def get_result_from_update(self, update: pyrogram.types.CallbackQuery) -> Any:
         return update.params.get('v')
 
-    async def get_reply_markup(self) -> DialogKeyboard:
+    async def get_reply_markup(self, update: DialogSupportedUpdate) -> DialogKeyboard:
         if callable(self.choices):
-            choices = await self.choices()
+            choices = await self.choices(update)
         else:
             choices = self.choices
+
+        if len(choices) == 0:
+            return None
 
         buttons = pydash.chunk([
             pyrogram.types.InlineKeyboardButton(
@@ -178,8 +186,8 @@ class DialogActionBoolPrompt(DialogActionInlineSelect):
         super().__init__(
             text=text,
             choices=[
-                DialogChoice(title="No", value=0),
-                DialogChoice(title="Yes", value=1),
+                DialogChoice(title="No", value="0"),
+                DialogChoice(title="Yes", value="1"),
             ],
             result_type=bool,
             columns=2
